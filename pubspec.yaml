@@ -1,0 +1,31 @@
+name: totalizer_cell
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+
+dependencies:
+  convex_bottom_bar: ^3.2.0
+  flutter:
+    sdk: flutter
+  icons_launcher: ^3.0.0
+  qr_code_scanner: ^1.0.1
+  rename_app: ^1.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+icons_launcher:
+  image_path: "assets/icon/icon.png"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: true
+
+flutter:
+  uses-material-design: true
