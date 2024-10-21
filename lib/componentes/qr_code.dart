@@ -5,8 +5,10 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 
 class QRViewExample extends StatefulWidget {
+  const QRViewExample({super.key});
+
   @override
-  _QRViewExampleState createState() => _QRViewExampleState();
+  createState() => _QRViewExampleState();
 }
 
 
@@ -45,7 +47,7 @@ class _QRViewExampleState extends State<QRViewExample> {
               child: (result != null)
                   ? Text(
                       'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  : Text('Scan a code'),
+                  : const Text('Scan a code'),
             ),
           )
         ],
