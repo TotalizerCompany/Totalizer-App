@@ -8,7 +8,7 @@ class TelaEscanearQrCode extends StatefulWidget {
   const TelaEscanearQrCode({super.key});
 
   @override
-  _TelaEscanearQrCodeState createState() => _TelaEscanearQrCodeState();
+  createState() => _TelaEscanearQrCodeState();
 }
 
 class _TelaEscanearQrCodeState extends State<TelaEscanearQrCode> {

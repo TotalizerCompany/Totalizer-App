@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'tela_escanear_qr_code.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 class TelaInicio extends StatefulWidget {
   final List<dynamic> dados;
@@ -37,17 +37,13 @@ class _TelaInicioState extends State<TelaInicio> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('TOTALIZER'),
+        centerTitle: false,
         titleTextStyle: const TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w900,
           color: Color.fromARGB(255, 0, 0, 0),
         ),
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Color.fromARGB(255, 0, 0, 0),),
-            onPressed:() => ('Settings'),
-          )
+        actions: const [
         ],
       ),
       body: Center(
@@ -68,18 +64,26 @@ class _TelaInicioState extends State<TelaInicio> {
           ],
         ),
       ),
-      bottomNavigationBar: ConvexAppBar(
-        style: TabStyle.fixedCircle,
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        color: const Color.fromARGB(255, 92, 92, 92),
-        activeColor: const Color.fromARGB(255, 0, 0, 0),
-        items: const [
-          TabItem(icon: Icons.receipt_long, title: 'Recibos'),
-          TabItem(icon: Icons.qr_code, title: 'add'),
-          TabItem(icon: Icons.checklist, title: 'Lista de Compras'),
+      bottomNavigationBar: GNav(
+        backgroundColor: Colors.white,
+        mainAxisAlignment: MainAxisAlignment.center,
+        tabBorderRadius: 16,
+        haptic: true,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        onTabChange: (index) => _onItemTapped(index),
+        tabs: const [
+          GButton(
+          icon: Icons.receipt_long, 
+          text: 'Recibos',
+          ),
+          GButton(
+          icon: Icons.qr_code,
+          ),
+          GButton(
+          icon: Icons.checklist, 
+          text: 'Lista',
+          ),
         ],
-        initialActiveIndex: 0,
-        onTap: _onItemTapped,
       ),
     );
   }
