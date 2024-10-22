@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'componentes/qr_code.dart';
+import 'package:flutter/widgets.dart';
+import 'tela_escanear_qr_code.dart';
 
 class TelaInicio extends StatefulWidget {
-  const TelaInicio({super.key});
+  final List<dynamic> dados;
+  const TelaInicio({super.key , required this.dados});
 
   @override
   createState() => _TelaInicioState();
@@ -21,8 +23,10 @@ class _TelaInicioState extends State<TelaInicio> {
       case 0:
         break;
       case 1:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const QRViewExample()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TelaEscanearQrCode()),
+      );
         break;
       case 2:
         break;
@@ -47,8 +51,23 @@ class _TelaInicioState extends State<TelaInicio> {
           )
         ],
       ),
-      body: const Center(
-        child: Text(''),
+      body: Center(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.dados.length,
+                itemBuilder: (context, index){
+                  return ListTile(
+                    title: Text(widget.dados[index]['nome']),
+                    subtitle: Text(widget.dados[index]['preco'].toString()),
+                    trailing: Text(widget.dados[index]['quantidade'].toString()),
+                  );
+                }
+              ),
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: ConvexAppBar(
         style: TabStyle.fixedCircle,

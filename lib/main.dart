@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Totalizer',
       debugShowCheckedModeBanner: false,
-      home: TelaInicio(),
+      home: TelaInicio(dados: [],),
     );
   }
 }
