@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:flutter/widgets.dart';
 import 'tela_escanear_qr_code.dart';
 
 class TelaInicio extends StatefulWidget {
@@ -25,7 +24,7 @@ class _TelaInicioState extends State<TelaInicio> {
       case 1:
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => TelaEscanearQrCode()),
+        MaterialPageRoute(builder: (context) => const TelaEscanearQrCode()),
       );
         break;
       case 2:
@@ -37,7 +36,7 @@ class _TelaInicioState extends State<TelaInicio> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Totalizer'),
+        title: const Text('TOTALIZER'),
         titleTextStyle: const TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w900,

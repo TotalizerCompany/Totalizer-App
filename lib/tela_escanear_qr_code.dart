@@ -5,6 +5,8 @@ import 'package:archive/archive.dart';
 import 'tela_inicio.dart';
 
 class TelaEscanearQrCode extends StatefulWidget {
+  const TelaEscanearQrCode({super.key});
+
   @override
   _TelaEscanearQrCodeState createState() => _TelaEscanearQrCodeState();
 }
