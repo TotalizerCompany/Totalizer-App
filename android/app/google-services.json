@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1029762239051",
+    "project_id": "totalizer-app",
+    "storage_bucket": "totalizer-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029762239051:android:bd74bef718d69439979bce",
+        "android_client_info": {
+          "package_name": "com.example.totalizer_cell"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxlXMHs35pZuCoTU3kbF8ZQW1DTejIbwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

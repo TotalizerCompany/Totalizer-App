@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'dart:convert';
 import 'package:archive/archive.dart';
-import 'tela_inicio.dart';
+import 'rotas.dart';
 
-class TelaEscanearQrCode extends StatefulWidget {
-  const TelaEscanearQrCode({super.key});
+class QrCode extends StatefulWidget {
+  const QrCode({super.key});
 
   @override
-  createState() => _TelaEscanearQrCodeState();
+  createState() => _QrCodeState();
 }
 
-class _TelaEscanearQrCodeState extends State<TelaEscanearQrCode> {
+class _QrCodeState extends State<QrCode> {
   Future<List<dynamic>>? descompactacao;
 
   @override
@@ -93,7 +93,7 @@ class _TelaEscanearQrCodeState extends State<TelaEscanearQrCode> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TelaInicio(dados: dadosDescompactados,)
+                    builder: (context) => Inicio(dados: dadosDescompactados,)
                   )
                 );
               });
@@ -104,4 +104,4 @@ class _TelaEscanearQrCodeState extends State<TelaEscanearQrCode> {
       ),
     );
   }
-}
+}*/
