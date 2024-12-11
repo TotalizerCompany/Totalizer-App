@@ -36,13 +36,13 @@ class RoteadorTela extends StatelessWidget{
       stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot){
         if (snapshot.hasData) {
-          return Rotas();
+          return const Rotas();
         }else if(snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
           return snapshot.connectionState == ConnectionState.waiting
             ? const Center(child: CircularProgressIndicator(),)
-            : Login();
+            : const Login();
         }
       },
     );

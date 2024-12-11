@@ -6,7 +6,7 @@ class Perfil extends StatefulWidget {
   const Perfil({super.key});
 
   @override
-  _PerfilState createState() => _PerfilState();
+  createState() => _PerfilState();
 }
 
 class _PerfilState extends State<Perfil> {
@@ -21,7 +21,7 @@ class _PerfilState extends State<Perfil> {
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => Login()),
+            MaterialPageRoute(builder: (context) => const Login()),
           );
         },
         child: const Text("Sair"),

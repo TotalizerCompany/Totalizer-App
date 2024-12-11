@@ -3,7 +3,7 @@ import 'package:totalizer_cell/widgets/snackbar.dart';
 import 'package:totalizer_cell/services/fireauth.dart';
 
 class Cadastro extends StatefulWidget {
-  Cadastro({super.key});
+  const Cadastro({super.key});
 
   @override
   State<Cadastro> createState() => _CadastroState();

@@ -8,9 +8,11 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class Rotas extends StatefulWidget {
+  const Rotas({super.key});
+
 
   @override
-  _RotasState createState() => _RotasState();
+  createState() => _RotasState();
 }
 
 class _RotasState extends State<Rotas> {

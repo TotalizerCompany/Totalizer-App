@@ -5,7 +5,7 @@ class Recibos extends StatefulWidget {
   const Recibos({super.key, required this.dados});
 
   @override
-  _RecibosState createState() => _RecibosState();
+  createState() => _RecibosState();
 }
 
 class _RecibosState extends State<Recibos> {

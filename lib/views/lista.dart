@@ -7,7 +7,7 @@ class Lista extends StatefulWidget {
   const Lista({super.key});
 
   @override
-  _ListaState createState() => _ListaState();
+  createState() => _ListaState();
 }
 
 class _ListaState extends State<Lista> {
@@ -66,10 +66,10 @@ class CriacaoLista extends StatefulWidget {
   final Function(Map<String, dynamic>) onCreate;
   final FireStore firestore;
 
-  CriacaoLista({required this.onCreate, required this.firestore, super.key});
+  const CriacaoLista({required this.onCreate, required this.firestore, super.key});
 
   @override
-  _CriacaoListaState createState() => _CriacaoListaState();
+  createState() => _CriacaoListaState();
 }
 
 class _CriacaoListaState extends State<CriacaoLista> {
@@ -93,7 +93,7 @@ class _CriacaoListaState extends State<CriacaoLista> {
 
   void _criarLista() async {
     if (_tituloController.text.isNotEmpty && _itens.isNotEmpty) {
-      var uuid = Uuid();
+      var uuid = const Uuid();
       String novoId = uuid.v4();
 
       final novaLista = {
