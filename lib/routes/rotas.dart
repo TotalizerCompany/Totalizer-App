@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:totalizer_cell/services/firestore.dart';
+import 'package:totalizer_cell/views/qr_code1.dart';
 import 'package:totalizer_cell/views/recibos.dart';
 //import 'package:totalizer_cell/views/qr_code.dart';
 import 'package:totalizer_cell/views/lista.dart';
@@ -101,13 +102,18 @@ class _RotasState extends State<Rotas> {
                   label: 'Criar nova lista',
                   onPressed: _criarNovaLista,
                 ),
-                /*SpeedDialChild(
+                SpeedDialChild(
                   child: const Icon(Icons.edit),
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.green,
                   label: 'Segunda ação',
-                  onPressed: ,
-                ),*/
+                  onPressed:() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => QRScanner())
+                    );
+                  } 
+                ),
               ],
               closedForegroundColor: Colors.white,
               openForegroundColor: Colors.black,

@@ -11,7 +11,6 @@ class Lista extends StatefulWidget {
 }
 
 class _ListaState extends State<Lista> {
-  List<Map<String, dynamic>> listaCompras = [];
   final FireStore _firestore = FireStore();
   
   @override
@@ -37,18 +36,46 @@ class _ListaState extends State<Lista> {
                   return const Center(child: Text('Nenhuma lista disponível.'));
                 }
 
-                // Obter os documentos do Firestore
-                var documentos = snapshot.data.docs;
+                // Obter os documentos da subcoleção
+                var documentos = snapshot.data!.docs;
 
                 return ListView.builder(
                   itemCount: documentos.length,
                   itemBuilder: (context, index) {
-                    var lista = documentos[index].data(); // Obter dados do documento
+                    var dados = documentos[index].data() as Map<String, dynamic>;
+
+                    // Converter os dados para um modelo de ListaModelo
+                    var lista = ListaModelo.fromMap({
+                      'id': documentos[index].id,
+                      ...dados,
+                    });
+
                     return ListTile(
-                      title: Text(lista['titulo'] ?? 'Sem título'),
-                      subtitle: Text(
-                        'Itens: ${lista['itens'] != null ? lista['itens'].length : 0}',
-                      ),
+                      title: Text(lista.titulo),
+                      subtitle: Text('Itens: ${lista.itens.length}'),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(lista.titulo),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: lista.itens
+                              .map((item) => ListTile(
+                                  title: Text(item.nome),
+                                  trailing: Text('Qtd: ${item.quantidade}'),
+                                ))
+                              .toList(),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context) , 
+                                child: const Text ('Fechar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     );
                   },
                 );

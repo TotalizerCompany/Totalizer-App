@@ -14,6 +14,8 @@ class FireStore {
     try {
       await _firestore
           .collection(userId) // Nome da coleção é o userId, para armazenar os dados do usuário atual
+          .doc('listas')
+          .collection('lista_de_compras')
           .doc(listaModelo.id) // ID do documento é o ID da lista
           .set(listaModelo.toMap()); // Converte a lista para um mapa e adiciona ao Firestore
     } catch (e) {
@@ -23,6 +25,9 @@ class FireStore {
 
   // Método para obter um stream de Lista do Firestore
   Stream<QuerySnapshot<Map<String, dynamic>>> conectarStreamListas() {
-    return _firestore.collection(userId).snapshots(); // Retorna um stream dos documentos na coleção do usuário
+    return _firestore.collection(userId)
+                     .doc('listas')
+                     .collection('lista_de_compras')
+                     .snapshots(); // Retorna um stream dos documentos na coleção do usuário
   }
 }

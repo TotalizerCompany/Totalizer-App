@@ -6,11 +6,9 @@ environment:
   sdk: '>=3.3.4 <4.0.0'
 
 dependencies:
-  archive: ^3.6.1
-  convex_bottom_bar: ^3.2.0
+  archive: ^4.0.1
   flutter:
     sdk: flutter
-  flutter_barcode_scanner: ^2.0.0
   icons_launcher: ^3.0.0
   rename_app: ^1.6.1
   google_nav_bar: ^5.0.6
@@ -20,11 +18,12 @@ dependencies:
   uuid: ^4.5.1
   simple_speed_dial: ^0.1.7
   google_sign_in: ^6.2.2
+  qr_code_scanner_plus: ^2.0.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 icons_launcher:
   image_path: "assets/icon/icon.png"
