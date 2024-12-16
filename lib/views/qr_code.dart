@@ -14,11 +14,29 @@ class QRScanner extends StatefulWidget {
   createState() => _QRScannerState();
 }
 
-class _QRScannerState extends State<QRScanner> {
+class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
   final SessionAuth sessionAuth = SessionAuth();
+
+  late AnimationController _animationController;
+  late Animation<double> _sizeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    // Configura a animação
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+     // repeat: true,
+    );
+    _sizeAnimation = Tween<double>(begin: 200.0, end: 220.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
 
   Future<List<dynamic>> descompactarDados(String conteudoCompactado) async {
     // Decodifica a string para bytes
@@ -31,7 +49,6 @@ class _QRScannerState extends State<QRScanner> {
     return jsonDecode(dadosString);
   }
 
-  // Função para escanear o QrCode (do Arquivo 2)
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
@@ -80,47 +97,68 @@ class _QRScannerState extends State<QRScanner> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.useCompactData
-          ? Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 5,
-                  child: QRView(
-                    key: qrKey,
-                    onQRViewCreated: _onQRViewCreated,
-                  ),
+      body: Stack(
+        children: [
+          widget.useCompactData
+              ? Column(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 5,
+                      child: QRView(
+                        key: qrKey,
+                        onQRViewCreated: _onQRViewCreated,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text('Aponte para um QR code para escanear'),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 5,
+                      child: QRView(
+                        key: qrKey,
+                        onQRViewCreated: _onQRViewCreated,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text('Aponte para um QR code para escanear'),
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Center(
-                    child: Text('Aponte para um QR code para escanear'),
+          // Container animado com borda pulsante
+          Center(
+            child: AnimatedBuilder(
+              animation: _sizeAnimation,
+              builder: (context, child) {
+                return Container(
+                  width: _sizeAnimation.value,
+                  height: _sizeAnimation.value,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255), width: 4),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ],
-            )
-          : Column(
-              children: <Widget>[
-                Expanded(
-                  flex: 5,
-                  child: QRView(
-                    key: qrKey,
-                    onQRViewCreated: _onQRViewCreated,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Center(
-                    child: Text('Aponte para um QR code para escanear'),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   void dispose() {
     controller?.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 }

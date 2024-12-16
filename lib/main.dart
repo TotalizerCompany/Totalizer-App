@@ -26,7 +26,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class RoteadorTela extends StatelessWidget{
   const RoteadorTela({super.key});
 
