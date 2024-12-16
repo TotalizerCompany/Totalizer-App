@@ -95,14 +95,14 @@ class _RotasState extends State<Rotas> {
                 SpeedDialChild(
                   child: const Icon(Icons.add),
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color.fromARGB(255, 17, 17, 17),
                   label: 'Criar nova lista',
                   onPressed: _criarNovaLista,
                 ),
                 SpeedDialChild(
                   child: const Icon(Icons.qr_code),
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.green,
+                  backgroundColor: const Color.fromARGB(255, 17, 17, 17),
                   label: 'Exportar listas',
                   onPressed: () {
                     Navigator.push(
@@ -114,10 +114,10 @@ class _RotasState extends State<Rotas> {
                   },
                 ),
               ],
-              closedForegroundColor: Colors.white,
+              closedForegroundColor: const Color.fromARGB(255, 0, 0, 0),
               openForegroundColor: Colors.black,
-              closedBackgroundColor: Colors.blue,
-              openBackgroundColor: Colors.blueGrey,
+              closedBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
+              openBackgroundColor: const Color.fromARGB(255, 163, 163, 163),
               labelsStyle: const TextStyle(color: Colors.black),
               child: const Icon(Icons.menu),
             )
@@ -131,7 +131,7 @@ class _RotasState extends State<Rotas> {
                               QRScanner(useCompactData: true)),
                     );
                   },
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   child: const Icon(Icons.qr_code_2),
                 )
               : null,

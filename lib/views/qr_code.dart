@@ -11,7 +11,7 @@ class QRScanner extends StatefulWidget {
   const QRScanner({super.key, required this.useCompactData});
 
   @override
-  _QRScannerState createState() => _QRScannerState();
+  createState() => _QRScannerState();
 }
 
 class _QRScannerState extends State<QRScanner> {

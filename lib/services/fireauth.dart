@@ -3,38 +3,38 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FireAuth {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  //cadastrar usurio com email e senha
+  // Cadastrar usuário com email e senha
   Future<String?> cadastrarUsuario({
     required String nome,
     required String email,
-    required String senha
+    required String senha,
   }) async {
     try {
-      //cria um novo usuario no firebase
+      // Cria um novo usuário no Firebase
       UserCredential userCredential = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: senha,
       );
 
-      //atualiza o nome de exibição do usuario com o nome fornecido
+      // Atualiza o nome de exibição do usuário com o nome fornecido
       await userCredential.user!.updateDisplayName(nome);
 
       return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        return 'E-mail já cadatrado';
+        return 'E-mail já cadastrado';
       }
       return 'Erro desconhecido';
     }
   }
 
-  //logar usuario com emial e senha
+  // Logar usuário com email e senha
   Future<String?> logarUsuario({
     required String email,
     required String senha,
   }) async {
     try {
-      //realiza o login do usuario com email e senha
+      // Realiza o login do usuário com email e senha
       await firebaseAuth.signInWithEmailAndPassword(
         email: email, 
         password: senha,
@@ -49,8 +49,14 @@ class FireAuth {
     }
   }
 
-  //logout do usuario
-  Future<void> deslogarUsuario() async{
+  // Logout do usuário
+  Future<void> deslogarUsuario() async {
     await firebaseAuth.signOut();
+  }
+
+  // Corrigido: Get the current user's email
+  String? getCurrentUserEmail() {
+    final user = firebaseAuth.currentUser;
+    return user?.email;
   }
 }
