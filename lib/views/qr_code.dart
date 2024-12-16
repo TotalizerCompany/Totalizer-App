@@ -1,107 +1,126 @@
-/*import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter/material.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:archive/archive.dart';
-import 'rotas.dart';
+import 'package:totalizer_cell/services/session_auth.dart';
+import 'package:totalizer_cell/views/recibos.dart';
 
-class QrCode extends StatefulWidget {
-  const QrCode({super.key});
+class QRScanner extends StatefulWidget {
+  final bool useCompactData; // Variável para definir qual lógica usar
+  const QRScanner({super.key, required this.useCompactData});
 
   @override
-  createState() => _QrCodeState();
+  _QRScannerState createState() => _QRScannerState();
 }
 
-class _QrCodeState extends State<QrCode> {
-  Future<List<dynamic>>? descompactacao;
+class _QRScannerState extends State<QRScanner> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  Barcode? result;
+  QRViewController? controller;
+  final SessionAuth sessionAuth = SessionAuth();
 
-  @override
-  void initState() {
-    super.initState();
-    //Escaneamento inicia logo que a tela é aberta
-    escanearQrCode();
+  Future<List<dynamic>> descompactarDados(String conteudoCompactado) async {
+    // Decodifica a string para bytes
+    List<int> bytesCompactados = base64Decode(conteudoCompactado);
+    // Descompacta os bytes usando o GZip
+    List<int> dadosBytes = GZipDecoder().decodeBytes(bytesCompactados);
+    // Converte os bytes em string
+    String dadosString = utf8.decode(dadosBytes);
+
+    return jsonDecode(dadosString);
   }
 
-  //Função para descompactar os dados
-  Future<List<dynamic>> descompactarDados(String conteudoCompactado) async{
-    return Future((){
-    //Decodifica a string pra bytes
-    List<int> bytesCompactados = base64Decode(conteudoCompactado);
-    //Descompacta os bytes usando o GZip
-    List<int> dadosBytes = GZipDecoder().decodeBytes(bytesCompactados);
-    //Converte os bytes em string
-    String dadosString = utf8.decode(dadosBytes);
-    
-    return jsonDecode(dadosString);
+  // Função para escanear o QrCode (do Arquivo 2)
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        result = scanData;
+      });
+
+      if (result != null) {
+        if (widget.useCompactData) {
+          // Descompactar dados caso seja a lógica de dados compactados
+          descompactarDados(result!.code!).then((dadosDescompactados) {
+            // Navegar para Recibos após descompactação
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Recibos(dados: dadosDescompactados),
+              ),
+            );
+          }).catchError((_) {
+            // Se não for possível descompactar os dados, volta à tela anterior
+            Navigator.pop(context);
+          });
+        } else {
+          // Autentica o código escaneado quando não for compactado
+          sessionAuth.authenticateSession(result!.code!, context).then((_) {
+            // Após a autenticação bem-sucedida, volta à tela anterior
+            Navigator.pop(context);
+          });
+        }
+
+        controller.pauseCamera();
+      }
     });
   }
-  //Função para escanear o QrCode
-  Future<void> escanearQrCode() async {
-    try {
-      //Escaneia o QrCode e retorna o resultado
-      String conteudoCompactado = await FlutterBarcodeScanner.scanBarcode(
-        '#ff6666',
-        'Cancelar',
-        true,
-        ScanMode.QR,
-      );
 
-      if(conteudoCompactado != '-1'){
-        setState(() {
-          descompactacao = descompactarDados(conteudoCompactado);
-        });
-      }
-    } catch (e){
-      //Exibe um alerta em caso de erro
-      if(mounted){
-        showDialog(
-          context: context, 
-          builder: (context) => AlertDialog(
-            title: const Text('Erro'),
-            content: Text('Falha ao escanear o QR code $e'),
-            actions: [
-              TextButton(
-                onPressed: (){
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ok')
-              )
-            ],
-          )
-        );
-      }
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller?.pauseCamera();
+    } else if (Platform.isIOS) {
+      controller?.resumeCamera();
     }
   }
 
-
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: descompactacao == null
-        ? const CircularProgressIndicator()
-        : FutureBuilder(
-          future: descompactacao, 
-          builder: (context, snapshot){
-            if(snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();     
-            }else if(snapshot.hasError){
-              return Text('Erro ao descompactar dados: ${snapshot.error}');
-            }else{
-              List<dynamic> dadosDescompactados = snapshot.data!;
-
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Inicio(dados: dadosDescompactados,)
-                  )
-                );
-              });
-              return const SizedBox.shrink();
-            }
-          }
-        )
-      ),
+      body: widget.useCompactData
+          ? Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: QRView(
+                    key: qrKey,
+                    onQRViewCreated: _onQRViewCreated,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Text('Aponte para um QR code para escanear'),
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              children: <Widget>[
+                Expanded(
+                  flex: 5,
+                  child: QRView(
+                    key: qrKey,
+                    onQRViewCreated: _onQRViewCreated,
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Text('Aponte para um QR code para escanear'),
+                  ),
+                ),
+              ],
+            ),
     );
   }
-}*/
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+}
