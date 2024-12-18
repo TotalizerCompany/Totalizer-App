@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:totalizer_cell/services/firestore.dart';
-import 'package:totalizer_cell/views/qr_code.dart';
+import 'package:totalizer_cell/components/qr_code.dart';
 import 'package:totalizer_cell/views/recibos.dart';
 import 'package:totalizer_cell/views/lista.dart';
 import 'package:totalizer_cell/views/perfil.dart';
@@ -16,15 +16,27 @@ class Rotas extends StatefulWidget {
 
 class _RotasState extends State<Rotas> {
   int _selectedIndex = 0;
-
+  final FireStore _fireStore = FireStore();
+  final Set<String> _listasSelecionadas = {};
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     _pages = [
-      const Recibos(dados: []),
-      const Lista(),
+      const Recibos(),
+      Lista(
+        onSelect: (id) {
+          setState(() {
+            _listasSelecionadas.add(id);
+          });
+        },
+        onDeselect: (id) {
+          setState(() {
+            _listasSelecionadas.remove(id);
+          });
+        },
+      ),
       const Perfil(),
     ];
   }
@@ -33,6 +45,52 @@ class _RotasState extends State<Rotas> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  AppBar _construirAppBar() {
+    if (_selectedIndex == 1 && _listasSelecionadas.isNotEmpty) {
+      return AppBar(
+        title: Text('${_listasSelecionadas.length} selecionada(s)'),
+        leading: IconButton(
+          onPressed: () {
+            setState(() {
+              _listasSelecionadas.clear();
+            });
+          },
+          icon: const Icon(Icons.clear),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              if (_listasSelecionadas.isNotEmpty) {
+                for (var id in _listasSelecionadas) {
+                  await _fireStore.deletarLista(id);
+                }
+                setState(() {
+                  _listasSelecionadas.clear();
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Listas excluídas com sucesso')),
+                );
+              }
+            },
+            icon: const Icon(Icons.delete),
+          ),
+        ],
+      );
+    } else {
+      return AppBar(
+        title: const Text(
+          'TOTALIZER',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.w900,
+            color: Color.fromARGB(255, 0, 0, 0),
+          ),
+        ),
+        centerTitle: false,
+      );
+    }
   }
 
   void _criarNovaLista() async {
@@ -51,15 +109,7 @@ class _RotasState extends State<Rotas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('TOTALIZER'),
-        centerTitle: false,
-        titleTextStyle: const TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w900,
-          color: Color.fromARGB(255, 0, 0, 0),
-        ),
-      ),
+      appBar: _construirAppBar(),
       body: IndexedStack(
         index: _selectedIndex,
         children: _pages,

@@ -19,6 +19,7 @@ dependencies:
   simple_speed_dial: ^0.1.7
   google_sign_in: ^6.2.2
   qr_code_scanner_plus: ^2.0.6
+  intl: ^0.20.1
 
 dev_dependencies:
   flutter_test:

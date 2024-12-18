@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:totalizer_cell/routes/rotas.dart';
 import 'package:totalizer_cell/widgets/snackbar.dart';

@@ -3,8 +3,10 @@ import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
+import 'package:totalizer_cell/services/firestore.dart';
 import 'package:totalizer_cell/services/session_auth.dart';
-import 'package:totalizer_cell/views/recibos.dart';
+import 'package:totalizer_cell/models/recibos.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class QRScanner extends StatefulWidget {
   final bool useCompactData; // Variável para definir qual lógica usar
@@ -14,12 +16,12 @@ class QRScanner extends StatefulWidget {
   createState() => _QRScannerState();
 }
 
-class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
+class _QRScannerState extends State<QRScanner>
+    with SingleTickerProviderStateMixin {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
   final SessionAuth sessionAuth = SessionAuth();
-
   late AnimationController _animationController;
   late Animation<double> _sizeAnimation;
 
@@ -30,7 +32,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: 1),
-     // repeat: true,
+      // repeat: true,
     );
     _sizeAnimation = Tween<double>(begin: 200.0, end: 220.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
@@ -38,15 +40,29 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     _animationController.forward();
   }
 
-  Future<List<dynamic>> descompactarDados(String conteudoCompactado) async {
-    // Decodifica a string para bytes
-    List<int> bytesCompactados = base64Decode(conteudoCompactado);
-    // Descompacta os bytes usando o GZip
-    List<int> dadosBytes = GZipDecoder().decodeBytes(bytesCompactados);
-    // Converte os bytes em string
-    String dadosString = utf8.decode(dadosBytes);
+  Future<Map<String, dynamic>> descompactarDados(
+      String conteudoCompactado) async {
+    try {
+      // Decodifica a string para bytes
+      List<int> bytesCompactados = base64Decode(conteudoCompactado);
+      print("Bytes compactados: $bytesCompactados");
 
-    return jsonDecode(dadosString);
+      // Descompacta os bytes usando o GZip
+      List<int> dadosBytes = GZipDecoder().decodeBytes(bytesCompactados);
+      print("Bytes descompactados: $dadosBytes");
+
+      // Converte os bytes em string
+      String dadosString = utf8.decode(dadosBytes);
+      print("Dados em string: $dadosString");
+
+      print("Dados descompactados em formato JSON: $dadosString");
+
+      // Converte para JSON
+      return jsonDecode(dadosString);
+    } catch (e) {
+      print('Erro ao descompactar ou converter os dados: $e');
+      throw Exception('Erro ao processar os dados');
+    }
   }
 
   void _onQRViewCreated(QRViewController controller) {
@@ -56,19 +72,34 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
         result = scanData;
       });
 
-      if (result != null) {
+      if (result!.code != null && result!.code!.isNotEmpty) {
         if (widget.useCompactData) {
           // Descompactar dados caso seja a lógica de dados compactados
           descompactarDados(result!.code!).then((dadosDescompactados) {
-            // Navegar para Recibos após descompactação
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Recibos(dados: dadosDescompactados),
-              ),
-            );
+            try {
+              Map<String, dynamic> dadosComTimestamp = {};
+              dadosComTimestamp['itens'] = dadosDescompactados.values.toList();
+
+              dadosComTimestamp['timestamp'] = Timestamp.fromDate(DateTime.now());
+
+              // Criar o modelo ReciboModelo
+              ReciboModelo recibo = ReciboModelo.fromMap(dadosComTimestamp);
+
+              // Adicionar no Firestore
+              FireStore fireStore = FireStore();
+              fireStore.adicionarRecibo(recibo);
+
+              // Navegar para a tela de recibos
+              Navigator.pop(context);
+              print('Recibo criado com sucesso: $dadosComTimestamp');
+            } catch (e) {
+              print('Erro ao criar recibo: $e');
+              // Caso ocorra algum erro, volte à tela anterior
+              Navigator.pop(context);
+            }
           }).catchError((_) {
             // Se não for possível descompactar os dados, volta à tela anterior
+            print('dados nao descompactados $scanData');
             Navigator.pop(context);
           });
         } else {
@@ -80,6 +111,8 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
         }
 
         controller.pauseCamera();
+      } else {
+        print("O QR Code escaneado não contém dados válidos.");
       }
     });
   }
@@ -143,7 +176,9 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
                   width: _sizeAnimation.value,
                   height: _sizeAnimation.value,
                   decoration: BoxDecoration(
-                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255), width: 4),
+                    border: Border.all(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        width: 4),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 );

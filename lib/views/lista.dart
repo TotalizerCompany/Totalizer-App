@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:totalizer_cell/models/lista.dart';
 import 'package:totalizer_cell/services/firestore.dart';
 import 'package:uuid/uuid.dart';
-
+import 'detalhes_lista.dart';
 class Lista extends StatefulWidget {
-  const Lista({super.key});
+  final Function(String) onSelect;
+  final Function(String) onDeselect;
+
+  const Lista({required this.onSelect, required this.onDeselect, super.key});
 
   @override
   createState() => _ListaState();
@@ -12,7 +15,10 @@ class Lista extends StatefulWidget {
 
 class _ListaState extends State<Lista> {
   final FireStore _firestore = FireStore();
-  
+  final Set<String> _listasSelecionadas = {};
+
+  bool get _modoSelecaoAtivo => _listasSelecionadas.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,7 +48,8 @@ class _ListaState extends State<Lista> {
                 return ListView.builder(
                   itemCount: documentos.length,
                   itemBuilder: (context, index) {
-                    var dados = documentos[index].data() as Map<String, dynamic>;
+                    var dados =
+                        documentos[index].data() as Map<String, dynamic>;
 
                     // Converter os dados para um modelo de ListaModelo
                     var lista = ListaModelo.fromMap({
@@ -50,32 +57,51 @@ class _ListaState extends State<Lista> {
                       ...dados,
                     });
 
+                    bool isSelected = _listasSelecionadas.contains(lista.id);
+
                     return ListTile(
-                      title: Text(lista.titulo),
+                      title: Text(
+                        lista.titulo,
+                        style: TextStyle(
+                          color: isSelected ? Colors.blue : Colors.black,
+                        ),
+                      ),
                       subtitle: Text('Itens: ${lista.itens.length}'),
+                      tileColor: isSelected ? Color.fromRGBO(0, 0, 255, 0.2) : null,
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(lista.titulo),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: lista.itens
-                              .map((item) => ListTile(
-                                  title: Text(item.nome),
-                                  trailing: Text('Qtd: ${item.quantidade}'),
-                                ))
-                              .toList(),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context) , 
-                                child: const Text ('Fechar'),
+                        if (_modoSelecaoAtivo) {
+                          setState(() {
+                            if (isSelected) {
+                              _listasSelecionadas.remove(lista.id);
+                              widget.onDeselect(lista.id);
+                            } else {
+                              _listasSelecionadas.add(lista.id);
+                              widget.onSelect(lista.id);
+                            }
+                          });
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetalhesLista(
+                                lista: lista,
+                                firestore: _firestore,
                               ),
-                            ],
-                          ),
-                        );
+                            ),
+                          );
+                        }
                       },
+                      onLongPress: () {
+                        setState(() {
+                          if (!isSelected) {
+                            _listasSelecionadas.add(lista.id);
+                            widget.onSelect(lista.id);
+                          }
+                        });
+                      },
+                      trailing: isSelected
+                          ? const Icon(Icons.check_box, color: Colors.blue)
+                          : null,
                     );
                   },
                 );
@@ -88,12 +114,12 @@ class _ListaState extends State<Lista> {
   }
 }
 
-
 class CriacaoLista extends StatefulWidget {
   final Function(Map<String, dynamic>) onCreate;
   final FireStore firestore;
 
-  const CriacaoLista({required this.onCreate, required this.firestore, super.key});
+  const CriacaoLista(
+      {required this.onCreate, required this.firestore, super.key});
 
   @override
   createState() => _CriacaoListaState();
@@ -106,7 +132,8 @@ class _CriacaoListaState extends State<CriacaoLista> {
   final TextEditingController _quantidadeController = TextEditingController();
 
   void _adicionarItem() {
-    if (_itemController.text.isNotEmpty && _quantidadeController.text.isNotEmpty) {
+    if (_itemController.text.isNotEmpty &&
+        _quantidadeController.text.isNotEmpty) {
       setState(() {
         _itens.add({
           'nome': _itemController.text,
@@ -128,16 +155,18 @@ class _CriacaoListaState extends State<CriacaoLista> {
         'itens': _itens,
       };
 
-
       // Chama o método de salvar no Firestore
       await widget.firestore.adicionarLista(ListaModelo(
         id: novoId,
         titulo: _tituloController.text,
-        itens: _itens.map((item) => Item(nome: item['nome'], quantidade: item['quantidade'])).toList(),
+        itens: _itens
+            .map((item) =>
+                Item(nome: item['nome'], quantidade: item['quantidade']))
+            .toList(),
       ));
 
-      widget.onCreate(novaLista);  // Chama a função de criação da lista
-      Navigator.pop(context, novaLista);  // Retorna a nova lista
+      widget.onCreate(novaLista); // Chama a função de criação da lista
+      Navigator.pop(context, novaLista); // Retorna a nova lista
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos')),
@@ -213,4 +242,3 @@ class _CriacaoListaState extends State<CriacaoLista> {
     );
   }
 }
-
