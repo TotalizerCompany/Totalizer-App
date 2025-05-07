@@ -31,16 +31,21 @@ class Item {
 class ReciboModelo {
   final List<Item> itens;
   final DateTime timestamp;
+  late final double total; // Adicionando a propriedade total
 
   ReciboModelo({
     required this.itens,
     required this.timestamp,
-  });
+  }) {
+    // Calcula o total automaticamente ao criar o objeto
+    total = itens.fold(0.0, (sum, item) => sum + (item.preco * item.quantidade));
+  }
 
   Map<String, dynamic> toMap() {
     return {
       'itens': itens.map((item) => item.toMap()).toList(),
       'timestamp': Timestamp.fromDate(timestamp),
+      // Não precisa salvar o total pois ele é calculado
     };
   }
 
@@ -51,7 +56,7 @@ class ReciboModelo {
 
     return ReciboModelo(
       itens: itensList,
-      timestamp: (map['timestamp'] as Timestamp).toDate(), // Converte o timestamp para DateTime
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
     );
   }
 }
